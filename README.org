@@ -2,7 +2,6 @@
 #+DATE: [2021-02-04 Thu]
 #+AUTHOR: Philipp Uhl
 
-* @apparts/s3deploy
 
 ~@apparts/s3deploy~ is a script for deploying static content into an AWS
 S3 bucket to be served as website. The files are gzip-compressed
@@ -11,7 +10,8 @@ before they are uploaded.
 Only new or updated files are uploaded to save time and
 bandwidth. Obsolete files can optionally be pruned from the bucket.
 
-** Usage
+
+* Usage
 
 You need to export your AWS credentials before you can use this
 script:
