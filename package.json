@@ -1,0 +1,31 @@
+{
+  "name": "@apparts/s3deploy",
+  "version": "1.0.0",
+  "description": "Cheap functional gziping deploy script for static web sites on AWS S3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phuhl/apparts-s3deploy.git"
+  },
+  "keywords": [
+    "apparts",
+    "s3",
+    "aws",
+    "deploy"
+  ],
+  "author": "Philipp Uhl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/phuhl/apparts-s3deploy/issues"
+  },
+  "homepage": "https://github.com/phuhl/apparts-s3deploy#readme",
+  "dependencies": {
+    "aws-sdk": "^2.836.0",
+    "mime-types": "^2.1.28",
+    "node-gzip": "^1.1.2",
+    "yargs": "^16.2.0"
+  }
+}

@@ -1,0 +1,15 @@
+#emacs backup files
+*~
+*\#
+.\#*
+
+#project related files
+npm-debug.log
+node_modules/
+logs/
+config/*.json
+!config/*.example.json
+coverage/
+
+#tern files
+.tern-port

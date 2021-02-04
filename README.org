@@ -1,0 +1,44 @@
+#+TITLE: @apparts/s3deploy
+#+DATE: [2021-02-04 Thu]
+#+AUTHOR: Philipp Uhl
+
+* @apparts/s3deploy
+
+~@apparts/s3deploy~ is a script for deploying static content into an AWS
+S3 bucket to be served as website. The files are gzip-compressed
+before they are uploaded.
+
+Only new or updated files are uploaded to save time and
+bandwidth. Obsolete files can optionally be pruned from the bucket.
+
+** Usage
+
+You need to export your AWS credentials before you can use this
+script:
+
+#+BEGIN_SRC sh
+export AWS_ACCESS_KEY_ID=<key id here>
+export AWS_SECRET_ACCESS_KEY=<secret key here>
+#+END_SRC
+
+The AWS user must at least have ~putObject~ and ~listObject~ permissions
+to upload and also ~deleteObject~ permissions to prune files.
+
+#+BEGIN_EXAMPLE
+npx @apparts/s3deploy <s3bucket> <local path>
+
+Positionals:
+  s3bucket    The bucket name to upload to.                             [string]
+  local path  Directory that should be uploaded.                        [string]
+
+Optionen:
+      --version      Version anzeigen                                  [boolean]
+  -f, --forceupload  Upload, even when file with same MD5 hash already exists.
+                                                                       [boolean]
+  -p, --prune        Prune S3 bucket, aka. delete all files from the bucket that
+                     were not found in the local directory.            [boolean]
+      --dontdelete   Files or folders that should be ignored when pruning the S3
+                     bucket.                                             [array]
+  -h, --help         Hilfe anzeigen                                    [boolean]
+#+END_EXAMPLE
+
