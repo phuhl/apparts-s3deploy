@@ -10,6 +10,14 @@ before they are uploaded.
 Only new or updated files are uploaded to save time and
 bandwidth. Obsolete files can optionally be pruned from the bucket.
 
+The ~allocateStaticSite~ command of ~@apparts/s3deploy~ can be used
+allocate and set up the required resources for static website
+hosting. This includes:
+- Creating S3 buckets
+- Creating a hosted zone for the domain
+- Creating and validating an ACM certificate
+- Creating a CloudFront distribution
+- Creating required Route53 DNS entries
 
 * Usage
 
@@ -21,7 +29,9 @@ export AWS_ACCESS_KEY_ID=<key id here>
 export AWS_SECRET_ACCESS_KEY=<secret key here>
 #+END_SRC
 
-The AWS user must at least have ~putObject~ and ~listObject~ permissions
+** Deploy
+
+The AWS user must at least have S3 ~putObject~ and ~listObject~ permissions
 to upload and also ~deleteObject~ permissions to prune files.
 
 #+BEGIN_EXAMPLE
@@ -42,3 +52,52 @@ Optionen:
   -h, --help         Hilfe anzeigen                                    [boolean]
 #+END_EXAMPLE
 
+** Allocate AWS resources
+
+The AWS user must at least have these permissions to perform all setup
+steps:
+- Route 53
+  - ListHostedZonesByName
+  - ChangeResourceRecordSets
+  - CreateHostedZone
+- ACM
+  - RequestCertificate
+  - DescribeCertificate
+- CloudFront
+  - CreateCloudFrontOriginAccessIdentity
+  - CreateDistribution
+- S3
+  - CreateBucket
+  - ListBuckets
+  - PutBucketWebsite
+  - PutPublicAccessBlock
+
+
+#+BEGIN_SRC sh
+npx -p @apparts/s3deploy -c allocateStaticSite <domain-name>
+
+Positionals:
+  domain-name  The domain name under which the site will be hosted.     [string]
+
+Optionen:
+      --version                Version anzeigen                        [boolean]
+      --s3-bucket-name         The name of the S3 bucket to be created. By
+                               default it will be the same as the domain name
+                                                                        [string]
+      --region                 Region to be used                        [string]
+      --single-page-app        Set Cloudfront up for a single page app [boolean]
+      --certificate-alt-names  Additional names in the SSL certificate   [array]
+      --price-class            The chosen price class for cloudfront.
+                               0 is PriceClass_100 (US, MX, CA, EU, Israel)
+                               1 is PriceClass-200 (...PriceClass_100, Sth A,
+                               Kenya, Middle East, JP, HK, Philippines,
+                               Singapore, Sth Korea, TW, Thailand)
+                               2 is PriceClass_All
+      --skip-create-s3         Use an existing S3 bucket               [boolean]
+      --skip-create-www-s3     Use an existing S3 bucket               [boolean]
+      --use-certificate        Use an existing certificate with the specified
+                               ARN                                      [string]
+      --no-www                 Don't create resources for a www. subdomain
+                                                                       [boolean]
+  -h, --help                   Hilfe anzeigen                          [boolean]
+#+END_SRC

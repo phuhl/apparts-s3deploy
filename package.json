@@ -1,6 +1,6 @@
 {
   "name": "@apparts/s3deploy",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Cheap functional gziping deploy script for static web sites on AWS S3",
   "main": "s3deploy.js",
   "scripts": {
@@ -22,11 +22,17 @@
     "url": "https://github.com/phuhl/apparts-s3deploy/issues"
   },
   "bin": {
-    "s3deploy": "./s3deploy.js"
+    "s3deploy": "./s3deploy.js",
+    "allocateStaticSite": "./createStatic.js"
   },
   "homepage": "https://github.com/phuhl/apparts-s3deploy#readme",
   "dependencies": {
+    "@aws-sdk/client-acm": "^3.8.0",
+    "@aws-sdk/client-cloudfront": "^3.8.0",
+    "@aws-sdk/client-route-53": "^3.8.0",
+    "@aws-sdk/client-s3": "^3.8.0",
     "aws-sdk": "^2.836.0",
+    "chalk": "^4.1.0",
     "mime-types": "^2.1.28",
     "node-gzip": "^1.1.2",
     "yargs": "^16.2.0"
