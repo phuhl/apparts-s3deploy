@@ -196,7 +196,7 @@ const main = async ({
         info,
         `Set up redirection: bucket www.${s3Name} -> https://${domain}.`
       );
-      await setBucketPublicAccess(s3, "www." + s3Name, false);
+      await setBucketPublicAccess(s3, "www." + s3Name, true);
       console.log(info, `Set bucket www.${s3Name} public.`);
     }
   }
