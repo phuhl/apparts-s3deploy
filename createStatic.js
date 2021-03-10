@@ -26,6 +26,7 @@ const {
   createHostedZone,
   setDNSValues,
   getHZoneNameFromDomain,
+  hasDNSValue,
 } = require("./r53");
 const {
   getCF,
@@ -34,6 +35,7 @@ const {
 } = require("./cf");
 
 const info = chalk.green("i");
+const warning = chalk.yellow("WARNING:");
 
 const main = async ({
   domain,
@@ -63,13 +65,40 @@ const main = async ({
   console.log(info, `Checking hosted zones.`);
   let hZone = await findHostedZoneForDomain(r53, domain);
   if (!hZone) {
-    console.log(
-      `${chalk.yellow("WARNING:")} Hosted zone ${domain} does not exist.`
-    );
+    console.log(`${warning} Hosted zone ${domain} does not exist.`);
 
     const answer = await askQuestion(`Should it be created? [y/N]`);
     if (isDefaultNo(answer)) {
       return;
+    }
+  } else {
+    console.log(info, `Checking DNS entries.`);
+    if (await hasDNSValue(r53, hZone.Id, "A", domain)) {
+      console.log(
+        `${warning} DNS A record for ${domain} exists. Overwriting it will make the current resource, served und that domain, unavailable.`
+      );
+      const answer = await askQuestion(`Overwrite the record anyways? [y/N]`);
+      if (isDefaultNo(answer)) {
+        return;
+      }
+    }
+    if (await hasDNSValue(r53, hZone.Id, "AAAA", domain)) {
+      console.log(
+        `${warning} DNS AAAA record for ${domain} exists. Overwriting it will make the current resource, served und that domain, unavailable.`
+      );
+      const answer = await askQuestion(`Overwrite the record anyways? [y/N]`);
+      if (isDefaultNo(answer)) {
+        return;
+      }
+    }
+    if (!noWww && (await hasDNSValue(r53, hZone.Id, "A", "www." + domain))) {
+      console.log(
+        `${warning} DNS A record for www.${domain} exists. Overwriting it will make the current resource, served und that domain, unavailable.`
+      );
+      const answer = await askQuestion(`Overwrite the record anyways? [y/N]`);
+      if (isDefaultNo(answer)) {
+        return;
+      }
     }
   }
 
@@ -159,7 +188,7 @@ const main = async ({
   }
   console.log(info, "Creating");
   console.log(toBeCreated.join("\n"));
-  console.log(info, "These changes might cause charges.");
+  console.log(info, "These changes might cause additional charges.");
   if (!isDefaultYes(await askQuestion(`Is this ok? [Y/n]`))) {
     console.log(info, "Aborted.");
     process.exit(1);
@@ -219,6 +248,7 @@ const main = async ({
         "update the nameservers at your domain provider manually"
       )}.`
     );
+    await askQuestion(`Press any key to continue. [Enter]`);
   }
   const hostedZoneId = hZone.Id;
 
@@ -241,7 +271,7 @@ const main = async ({
       [domain, ...(certAltNames || [])].length
     );
     console.log(info, `Creating Route53 domain validation record.`);
-    await setDNSValues(r53, hostedZoneId, ResourceRecordSets);
+    await setDNSValues(r53, hostedZoneId, ResourceRecordSets, true);
     console.log(info, `Created Route53 domain validation record.`);
     ResourceRecordSets.forEach(({ Name }) =>
       summary.push({ created: "DNS CNAME", id: Name })

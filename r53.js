@@ -3,6 +3,7 @@ const {
   ListHostedZonesByNameCommand,
   ChangeResourceRecordSetsCommand,
   CreateHostedZoneCommand,
+  ListResourceRecordSetsCommand,
 } = require("@aws-sdk/client-route-53");
 
 const getR53 = () => new Route53Client({ region: "us-east-1" });
@@ -40,6 +41,20 @@ const createHostedZone = async (r53, domain) => {
       Name: hZoneName,
     })
   );
+};
+
+const hasDNSValue = async (r53, hostedZoneId, type, name) => {
+  const { ResourceRecordSets } = await r53.send(
+    new ListResourceRecordSetsCommand({
+      HostedZoneId: hostedZoneId,
+      StartRecordName: name,
+      StartRecordType: type,
+    })
+  );
+  const records = ResourceRecordSets.filter(
+    ({ Name, Type }) => Name === name && Type === type
+  );
+  return records.length === 0 ? false : records;
 };
 
 const hostedZoneIdsForS3 = {
@@ -106,4 +121,5 @@ module.exports = {
   createHostedZone,
   setDNSValues,
   getHZoneNameFromDomain,
+  hasDNSValue,
 };

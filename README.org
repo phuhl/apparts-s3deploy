@@ -60,6 +60,7 @@ steps:
   - ListHostedZonesByName
   - ChangeResourceRecordSets
   - CreateHostedZone
+  - ListResourceRecordSets
 - ACM
   - RequestCertificate
   - DescribeCertificate
