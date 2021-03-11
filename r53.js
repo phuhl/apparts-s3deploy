@@ -100,6 +100,7 @@ const setDNSValues = async (r53, hostedZoneId, records, force = false) => {
           } else if (/\.cloudfront\.net\.?$/.test(record.AliasTarget.DNSName)) {
             record.AliasTarget.HostedZoneId = cfHostedZoneId;
           } else {
+            console.log(record.AliasTarget.DNSName);
             throw new Error(
               "AliasTarget.HostedZoneId missing and cannot be automatically guessed."
             );

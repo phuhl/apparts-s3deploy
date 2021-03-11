@@ -67,6 +67,7 @@ steps:
 - CloudFront
   - CreateCloudFrontOriginAccessIdentity
   - CreateDistribution
+  - GetDistribution
 - S3
   - CreateBucket
   - ListBuckets

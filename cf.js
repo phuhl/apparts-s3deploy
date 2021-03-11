@@ -2,6 +2,7 @@ const {
   CloudFrontClient,
   CreateCloudFrontOriginAccessIdentityCommand,
   CreateDistributionCommand,
+  GetDistributionCommand,
 } = require("@aws-sdk/client-cloudfront");
 
 const getCF = () => new CloudFrontClient({ region: "us-east-1" });
@@ -15,6 +16,10 @@ const createOriginAccessIdentity = async (cf, name) => {
       },
     })
   );
+};
+
+const getCloudFrontDistribution = async (cf, id) => {
+  return await cf.send(new GetDistributionCommand({ Id: id }));
 };
 
 const createCloudFrontDistribution = async (
@@ -92,4 +97,5 @@ module.exports = {
   getCF,
   createOriginAccessIdentity,
   createCloudFrontDistribution,
+  getCloudFrontDistribution,
 };

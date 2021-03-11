@@ -32,6 +32,7 @@ const {
   getCF,
   createOriginAccessIdentity,
   createCloudFrontDistribution,
+  getCloudFrontDistribution,
 } = require("./cf");
 
 const info = chalk.green("i");
@@ -47,6 +48,7 @@ const main = async ({
   skipCreateS3,
   skipCreateWwwS3,
   useCertificate,
+  useDistribution,
   noWww,
 }) => {
   if (region === "me-south-1") {
@@ -139,6 +141,15 @@ const main = async ({
     );
   }
 
+  let cfDistLocation;
+  if (useDistribution) {
+    console.log(info, `Checking CloudFront distribution.`);
+    const {
+      Distribution: { DomainName },
+    } = await getCloudFrontDistribution(cf, useDistribution);
+    cfDistLocation = DomainName;
+  }
+
   const toBeCreated = [];
   if (!skipCreateS3) {
     toBeCreated.push(`  - S3 bucket ${chalk.green(s3Name)}`);
@@ -167,7 +178,8 @@ const main = async ({
       ])}`
     );
   }
-  toBeCreated.push(`  - CloudFront origin access identity
+  if (!useDistribution) {
+    toBeCreated.push(`  - CloudFront origin access identity
   - CloudFront distribution for ${chalk.green([
     domain,
     certAltNames || [],
@@ -180,9 +192,10 @@ const main = async ({
     - SSL support method ${chalk.green("sni-only")}
     - a custom certificate for ${chalk.green([domain, certAltNames || []])}
     - cache policy ${chalk.green("Managed-CachingOptimized")}
-    - the S3 bucket ${chalk.green(s3Name)} as origin
-  - DNS A and AAAA records for ${chalk.green(domain)}`);
+    - the S3 bucket ${chalk.green(s3Name)} as origin`);
+  }
 
+  toBeCreated.push(`  - DNS A and AAAA records for ${chalk.green(domain)}`);
   if (!noWww) {
     toBeCreated.push(`  - DNS A record for ${chalk.green("www." + domain)}`);
   }
@@ -292,29 +305,33 @@ const main = async ({
     summary.push({ reused: "Certificate", id: certificateArn });
   }
 
-  console.log(info, "Creating cloudfront access identity");
-  const {
-    CloudFrontOriginAccessIdentity: { Id: cfOAIId },
-  } = await createOriginAccessIdentity(cf, domain);
-  console.log(info, "Created cloudfront access identity:", cfOAIId);
-  summary.push({ created: "CF Origin Access Id", id: cfOAIId });
+  if (!cfDistLocation) {
+    console.log(info, "Creating cloudfront access identity");
+    const {
+      CloudFrontOriginAccessIdentity: { Id: cfOAIId },
+    } = await createOriginAccessIdentity(cf, domain);
+    console.log(info, "Created cloudfront access identity:", cfOAIId);
+    summary.push({ created: "CF Origin Access Id", id: cfOAIId });
 
-  console.log(info, "Creating cloudfront distribution");
-  const {
-    Location: cfDistLocation,
-    Distribution: { Id },
-  } = await createCloudFrontDistribution(cf, {
-    domain,
-    altNames: certAltNames,
-    isSPA,
-    s3Name,
-    certificateArn,
-    priceClass,
-    cfOAIId,
-    region,
-  });
-  console.log(info, "Created cloudfront distribution: ", Id);
-  summary.push({ created: "Cloudfront distribution", id: Id });
+    console.log(info, "Creating cloudfront distribution");
+    const {
+      Distribution: { Id, DomainName },
+    } = await createCloudFrontDistribution(cf, {
+      domain,
+      altNames: certAltNames,
+      isSPA,
+      s3Name,
+      certificateArn,
+      priceClass,
+      cfOAIId,
+      region,
+    });
+    console.log(info, "Created cloudfront distribution: ", Id);
+    summary.push({ created: "Cloudfront distribution", id: Id });
+    cfDistLocation = DomainName;
+  } else {
+    summary.push({ reused: "Cloudfront distribution", id: useDistribution });
+  }
 
   console.log(info, "Adding DNS record to distribution");
   const dnsVals = [
@@ -411,6 +428,11 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     description: "Use an existing certificate with the specified ARN",
   })
+  .option("use-distribution", {
+    type: "string",
+    description:
+      "Use an existing cloudfront distribution with the specified Id",
+  })
   .option("no-www", {
     type: "boolean",
     description: "Don't create resources for a www. subdomain",
@@ -429,6 +451,7 @@ const {
   "skip-create-s3": skipCreateS3,
   "skip-create-www-s3": skipCreateWwwS3,
   "use-certificate": useCertificate,
+  "use-distribution": useDistribution,
   "no-www": noWww,
 } = argv;
 
@@ -442,6 +465,7 @@ main({
   skipCreateS3,
   skipCreateWwwS3,
   useCertificate,
+  useDistribution,
   noWww,
 })
   .then(() => {
