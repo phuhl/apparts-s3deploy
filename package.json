@@ -1,6 +1,6 @@
 {
   "name": "@apparts/s3deploy",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "description": "Cheap functional gziping deploy script for static web sites on AWS S3",
   "main": "s3deploy.js",
   "scripts": {
