@@ -12,6 +12,7 @@ const {
   createBucket,
   makeBucketRedirectTo,
   setBucketPublicAccess,
+  addCFOriginAccessIdentityPolicy,
 } = require("./s3");
 const {
   getACM,
@@ -312,6 +313,9 @@ const main = async ({
     } = await createOriginAccessIdentity(cf, domain);
     console.log(info, "Created cloudfront access identity:", cfOAIId);
     summary.push({ created: "CF Origin Access Id", id: cfOAIId });
+
+    console.log(info, "Adding cloudfront access identity to S3 policy");
+    await addCFOriginAccessIdentityPolicy(s3, s3Name, cfOAIId);
 
     console.log(info, "Creating cloudfront distribution");
     const {

@@ -4,6 +4,7 @@ const {
   ListBucketsCommand,
   PutBucketWebsiteCommand,
   PutPublicAccessBlockCommand,
+  PutBucketPolicyCommand,
 } = require("@aws-sdk/client-s3");
 
 const getS3 = (params) => new S3Client(params);
@@ -48,6 +49,31 @@ const setBucketPublicAccess = async (s3, name, isPublic) => {
   );
 };
 
+const addCFOriginAccessIdentityPolicy = async (s3, bucket, id) => {
+  await s3.send(
+    new PutBucketPolicyCommand({
+      Bucket: bucket,
+      Policy: JSON.stringify({
+        Version: "2008-10-17",
+        Id: "PolicyForCloudFrontPrivateContent",
+        Statement: [
+          {
+            Sid: "1",
+            Effect: "Allow",
+            Principal: {
+              AWS:
+                "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity " +
+                id,
+            },
+            Action: "s3:GetObject",
+            Resource: `arn:aws:s3:::${bucket}/*`,
+          },
+        ],
+      }),
+    })
+  );
+};
+
 module.exports = {
   getS3,
   getBuckets,
@@ -55,4 +81,5 @@ module.exports = {
   createBucket,
   makeBucketRedirectTo,
   setBucketPublicAccess,
+  addCFOriginAccessIdentityPolicy,
 };
