@@ -309,13 +309,22 @@ const main = async ({
   if (!cfDistLocation) {
     console.log(info, "Creating cloudfront access identity");
     const {
-      CloudFrontOriginAccessIdentity: { Id: cfOAIId },
+      CloudFrontOriginAccessIdentity: {
+        Id: cfOAIId,
+        S3CanonicalUserId: cfOAIUserId,
+      },
     } = await createOriginAccessIdentity(cf, domain);
-    console.log(info, "Created cloudfront access identity:", cfOAIId);
+    console.log(
+      info,
+      "Created cloudfront access identity:",
+      cfOAIId,
+      "UserId:",
+      cfOAIId
+    );
     summary.push({ created: "CF Origin Access Id", id: cfOAIId });
 
     console.log(info, "Adding cloudfront access identity to S3 policy");
-    await addCFOriginAccessIdentityPolicy(s3, s3Name, cfOAIId);
+    await addCFOriginAccessIdentityPolicy(s3, s3Name, cfOAIUserId);
 
     console.log(info, "Creating cloudfront distribution");
     const {

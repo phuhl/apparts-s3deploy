@@ -49,7 +49,7 @@ const setBucketPublicAccess = async (s3, name, isPublic) => {
   );
 };
 
-const addCFOriginAccessIdentityPolicy = async (s3, bucket, id) => {
+const addCFOriginAccessIdentityPolicy = async (s3, bucket, userId) => {
   await s3.send(
     new PutBucketPolicyCommand({
       Bucket: bucket,
@@ -61,9 +61,7 @@ const addCFOriginAccessIdentityPolicy = async (s3, bucket, id) => {
             Sid: "1",
             Effect: "Allow",
             Principal: {
-              AWS:
-                "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity " +
-                id,
+              CanonicalUser: userId,
             },
             Action: "s3:GetObject",
             Resource: `arn:aws:s3:::${bucket}/*`,
