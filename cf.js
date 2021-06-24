@@ -35,19 +35,16 @@ const createCloudFrontDistribution = async (
     priceClass,
   }
 ) => {
-  let CustomErrorResponses;
-  if (isSPA) {
-    CustomErrorResponses = {
-      Items: [
-        {
-          ErrorCode: 403,
-          ResponsePagePath: "/index.html",
-          ResponseCode: 200,
-          ErrorCachingMinTTL: 100000,
-        },
-      ],
-    };
-  }
+  const CustomErrorResponses = {
+    Items: [
+      {
+        ErrorCode: 403,
+        ResponsePagePath: isSPA ? "/index.html" : "/404.html",
+        ResponseCode: isSPA ? 200 : 404,
+        ErrorCachingMinTTL: isSPA ? 100000 : 30,
+      },
+    ],
+  };
   const Aliases = {
     Items: [domain, ...(altNames || [])],
     Quantity: [domain, ...(altNames || [])].length,
