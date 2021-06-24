@@ -341,6 +341,12 @@ const main = async ({
     });
     console.log(info, "Created cloudfront distribution: ", Id);
     summary.push({ created: "Cloudfront distribution", id: Id });
+    if (!isSPA) {
+      summary.push({
+        warn: "Configured 404 error page as /404.html. Make sure it exists!",
+        id: "",
+      });
+    }
     cfDistLocation = DomainName;
   } else {
     summary.push({ reused: "Cloudfront distribution", id: useDistribution });
@@ -387,12 +393,15 @@ const main = async ({
   console.log(info, "All set up. Summary:");
   console.log(
     summary
-      .map(({ created, reused, id }) => {
+      .map(({ created, reused, warn, id }) => {
         if (created) {
           return `  - ${chalk.yellow("created")}: ${created} ${id}`;
-        } else {
+        } else if (reused) {
           return `  - ${chalk.green("reused")}: ${reused} ${id}`;
+        } else if (warn) {
+          return `  ! ${chalk.yellow("Attention")}: ${warn}`;
         }
+        return "Something unexpected was logged.";
       })
       .join("\n")
   );
