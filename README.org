@@ -70,9 +70,10 @@ steps:
   - GetDistribution
 - S3
   - CreateBucket
-  - ListBuckets
+  - ListBucket
   - PutBucketWebsite
   - PutPublicAccessBlock
+  - PutBucketPolicy
 
 
 #+BEGIN_SRC sh
