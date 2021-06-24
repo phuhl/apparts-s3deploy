@@ -44,6 +44,7 @@ const createCloudFrontDistribution = async (
         ErrorCachingMinTTL: isSPA ? 100000 : 30,
       },
     ],
+    Quantity: 1,
   };
   const Aliases = {
     Items: [domain, ...(altNames || [])],
