@@ -1,8 +1,8 @@
 {
   "name": "@apparts/s3deploy",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Cheap functional gziping deploy script for static web sites on AWS S3",
-  "main": "s3deploy.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +22,7 @@
     "url": "https://github.com/phuhl/apparts-s3deploy/issues"
   },
   "bin": {
-    "s3deploy": "s3deploy.js"
+    "s3deploy": "index.js"
   },
   "homepage": "https://github.com/phuhl/apparts-s3deploy#readme",
   "dependencies": {
