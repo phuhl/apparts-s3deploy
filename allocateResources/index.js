@@ -474,7 +474,7 @@ const {
   "skip-create-www-s3": skipCreateWwwS3,
   "use-certificate": useCertificate,
   "use-distribution": useDistribution,
-  "no-www": noWww,
+  www: www,
 } = argv;
 
 main({
@@ -488,7 +488,7 @@ main({
   skipCreateWwwS3,
   useCertificate,
   useDistribution,
-  noWww,
+  noWww: www !== undefined,
 })
   .then(() => {
     console.log(info, "Done.");
