@@ -1,6 +1,6 @@
 {
   "name": "@apparts/allocate-static-aws-site",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A script to allocate static pages on AWS infrastructure",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/phuhl/apparts-s3deploy.git"
   },
   "bin": {
-    "allocate-static-aws-site": "./index.js"
+    "allocate-static-aws-site": "index.js"
   },
   "keywords": [
     "aws",
