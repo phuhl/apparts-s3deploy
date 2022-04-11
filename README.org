@@ -10,7 +10,7 @@ before they are uploaded.
 Only new or updated files are uploaded to save time and
 bandwidth. Obsolete files can optionally be pruned from the bucket.
 
-The ~allocateStaticSite~ command of ~@apparts/s3deploy~ can be used
+~@apparts/allocate-static-aws-site~ can be used to
 allocate and set up the required resources for static website
 hosting. This includes:
 - Creating S3 buckets
@@ -77,7 +77,7 @@ steps:
 
 
 #+BEGIN_SRC sh
-npx -p @apparts/s3deploy -c allocateStaticSite <domain-name>
+npx @apparts/allocate-static-aws-site <domain-name>
 
 Positionals:
   domain-name  The domain name under which the site will be hosted.     [string]
