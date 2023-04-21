@@ -119,7 +119,7 @@ const getParamsForFile = async (filePath, bucketName, localPath) => {
     Body: await fs.readFile(filePath),
     ContentType: contentType,
     ...(!noCache && contentType.match(regExpForCacheControl)
-      ? { CacheControl: cacheDuration }
+      ? { CacheControl: "" + cacheDuration }
       : {}),
   };
 };
