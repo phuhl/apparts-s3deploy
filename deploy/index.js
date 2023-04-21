@@ -41,6 +41,14 @@ const argv = yargs(hideBin(process.argv))
     description: "Disable Cache-Control headers entirely.",
     type: "boolean",
   })
+  .option("cache-js", {
+    description: "Enable Cache-Control header for JS files.",
+    type: "boolean",
+  })
+  .option("cache-css", {
+    description: "Enable Cache-Control header for CSS files.",
+    type: "boolean",
+  })
   .option("cache-duration", {
     description:
       "The seconds for the Cache-Control header of static files. Default is 31536000 (1 year)",
@@ -58,21 +66,9 @@ const {
   prune,
   "cache-duration": cacheDuration = 31536000,
   "no-cache": noCache,
+  "cache-css": cacheCss,
+  "cache-js": cacheJs,
 } = argv;
-
-// font, image, media file, script, or stylesheet.
-const fileEndingsForCacheControl = [
-  "application/x-javascript",
-  "text/javascript",
-  "text/css",
-  "application/vnd.ms-fontobject",
-  "app/vdn.ms-fontobject",
-  "application/x-font-ttf",
-  "image/.*",
-  "video/.*",
-  "font/.*",
-];
-const regExpForCacheControl = new RegExp(fileEndingsForCacheControl.join("|"));
 
 const fileEndingsForCompression = [
   "text/plain",
@@ -113,6 +109,27 @@ const getKeyForFile = (filePath, localPath) =>
   filePath.substring(localPath.length - 1);
 
 const getParamsForFile = async (filePath, bucketName, localPath) => {
+  // font, image, media file, script, or stylesheet.
+  const fileEndingsForCacheControl = [
+    "application/vnd.ms-fontobject",
+    "app/vdn.ms-fontobject",
+    "application/x-font-ttf",
+    "image/.*",
+    "video/.*",
+    "font/.*",
+    ...(cacheJs
+      ? [
+          "application/javascript",
+          "application/x-javascript",
+          "text/javascript",
+        ]
+      : []),
+    ...(cacheCss ? ["text/css"] : []),
+  ];
+  const regExpForCacheControl = new RegExp(
+    fileEndingsForCacheControl.join("|")
+  );
+
   const key = getKeyForFile(filePath, localPath);
   const contentType = mime.lookup(key) || "application/octet-stream";
   return {
