@@ -37,6 +37,16 @@ const argv = yargs(hideBin(process.argv))
       "Files or folders that should be ignored when pruning the S3 bucket.",
     type: "array",
   })
+  .option("no-cache", {
+    description: "Disable Cache-Control headers entirely.",
+    type: "boolean",
+  })
+  .option("cache-duration", {
+    description:
+      "The seconds for the Cache-Control header of static files. Default is 31536000 (1 year)",
+    type: "number",
+  })
+
   .scriptName("npx @apparts/s3deploy")
   .help()
   .alias("help", "h").argv;
@@ -46,7 +56,22 @@ const {
   forceupload: forceUpload,
   dontdelete = [],
   prune,
+  "cache-duration": cacheDuration = 31536000,
+  "no-cache": noCache,
 } = argv;
+
+// font, image, media file, script, or stylesheet.
+const fileEndingsForCacheControl = [
+  "application/x-javascript",
+  "text/javascript",
+  "text/css",
+  "app/vdn.ms-fontobject",
+  "application/x-font-ttf",
+  "image/.*",
+  "video/.*",
+  "font/.*",
+];
+const regExpForCacheControl = new RegExp(fileEndingsForCacheControl.join("|"));
 
 const fileEndingsForCompression = [
   "text/plain",
@@ -87,11 +112,15 @@ const getKeyForFile = (filePath, localPath) =>
 
 const getParamsForFile = async (filePath, bucketName, localPath) => {
   const key = getKeyForFile(filePath, localPath);
+  const contentType = mime.lookup(key) || "application/octet-stream";
   return {
     Bucket: bucketName,
     Key: key,
     Body: await fs.readFile(filePath),
-    ContentType: mime.lookup(key) || "application/octet-stream",
+    ContentType: contentType,
+    ...(!noCache && contentType.match(regExpForCacheControl)
+      ? { CacheControl: cacheDuration }
+      : {}),
   };
 };
 
